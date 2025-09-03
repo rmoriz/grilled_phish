@@ -5,7 +5,8 @@ A Python CLI tool that analyzes Mastodon and other Fediverse posts for potential
 ## Features
 
 - 🔍 **Post Extraction**: Automatically extracts content from Mastodon/Fediverse URLs
-- 🤖 **AI Analysis**: Uses OpenRouter API with various AI models to analyze content
+- 📝 **Direct Text Analysis**: Analyze any text content without needing a URL
+- 🤖 **AI Analysis**: Uses OpenRouter API with free AI model to analyze content
 - 🚨 **Scam Detection**: Identifies common scam patterns, phishing attempts, and fraud indicators
 - 📊 **Detailed Reports**: Provides confidence scores, explanations, and recommendations
 - 🎯 **Multiple Formats**: Supports both human-readable and JSON output
@@ -26,10 +27,28 @@ A Python CLI tool that analyzes Mastodon and other Fediverse posts for potential
 
 ## Usage
 
-### Basic Usage
+### URL Analysis
+Analyze posts directly from Mastodon/Fediverse URLs:
 
 ```bash
 python mastodon_analyzer.py "https://mastodon.social/@user/123456789"
+```
+
+### Text Analysis
+Analyze any text content without needing a URL - perfect for content from other platforms, messages, emails, or suspicious text you encounter:
+
+```bash
+python mastodon_analyzer.py "🚨 URGENT! Your account will be suspended! Click here: bit.ly/verify" --text
+```
+
+### Basic Usage
+
+```bash
+# Analyze a post by URL
+python mastodon_analyzer.py "https://mastodon.social/@user/123456789"
+
+# Analyze text content directly
+python mastodon_analyzer.py "🚨 URGENT! Click here to verify your account!" --text
 ```
 
 ### With Options
@@ -44,6 +63,9 @@ python mastodon_analyzer.py "https://example.social/@user/123" --output json
 # Simple JSON output (verdict, percentage, reason only)
 python mastodon_analyzer.py "https://example.social/@user/123" --json
 
+# Analyze text directly with JSON output
+python mastodon_analyzer.py "Check out this amazing crypto opportunity!" --text --json
+
 # Verbose mode for debugging
 python mastodon_analyzer.py "https://example.social/@user/123" --verbose
 
@@ -53,6 +75,9 @@ python mastodon_analyzer.py "https://example.social/@user/123" --api-key "your-k
 # Set model via environment variable
 export OPENROUTER_MODEL="anthropic/claude-3-sonnet"
 python mastodon_analyzer.py "https://example.social/@user/123"
+
+# Analyze suspicious text content
+python mastodon_analyzer.py "URGENT! Send me your password to verify account!" --text --verbose
 ```
 
 ## Configuration

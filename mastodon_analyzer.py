@@ -381,37 +381,51 @@ Respond in JSON format with:
 
 
 @click.command()
-@click.argument('url')
+@click.argument('url_or_text')
 @click.option('--api-key', envvar='OPENROUTER_API_KEY', help='OpenRouter API key')
 @click.option('--model', envvar='OPENROUTER_MODEL', default='openai/gpt-oss-20b:free', help='AI model to use for analysis')
 @click.option('--output', '-o', type=click.Choice(['text', 'json']), default='text', help='Output format')
 @click.option('--json', 'json_only', is_flag=True, help='Output only JSON with verdict, percentage, and reason')
+@click.option('--text', '-t', is_flag=True, help='Treat input as text content instead of URL')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
-def analyze(url: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool):
+def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool):
     """
     Analyze a Mastodon/Fediverse post for scam or phishing content.
     
-    URL: The URL of the Mastodon/Fediverse post to analyze
+    URL_OR_TEXT: The URL of the post to analyze, or the text content if --text flag is used
     """
     if not api_key:
         click.echo("Error: OpenRouter API key is required. Set OPENROUTER_API_KEY environment variable or use --api-key option.", err=True)
         sys.exit(1)
     
-    if verbose:
-        click.echo(f"Analyzing URL: {url}")
-    
-    # Extract post data
-    extractor = MastodonPostExtractor()
-    post_data = extractor.extract_post_data(url)
-    
-    if not post_data:
-        click.echo("Error: Could not extract post data from URL", err=True)
-        sys.exit(1)
-    
-    if verbose:
-        click.echo(f"Extracted post from: {post_data.get('instance', 'unknown')}")
-        click.echo(f"Author: {post_data.get('author', 'unknown')}")
-        click.echo(f"Content preview: {post_data.get('content', '')[:100]}...")
+    if text:
+        # Analyze text directly
+        if verbose:
+            click.echo(f"Analyzing text content: {url_or_text[:100]}...")
+        
+        post_data = {
+            'url': 'direct_text_input',
+            'content': url_or_text,
+            'author': 'unknown',
+            'timestamp': '',
+            'instance': 'direct_input'
+        }
+    else:
+        # Extract post data from URL
+        if verbose:
+            click.echo(f"Analyzing URL: {url_or_text}")
+        
+        extractor = MastodonPostExtractor()
+        post_data = extractor.extract_post_data(url_or_text)
+        
+        if not post_data:
+            click.echo("Error: Could not extract post data from URL", err=True)
+            sys.exit(1)
+        
+        if verbose:
+            click.echo(f"Extracted post from: {post_data.get('instance', 'unknown')}")
+            click.echo(f"Author: {post_data.get('author', 'unknown')}")
+            click.echo(f"Content preview: {post_data.get('content', '')[:100]}...")
     
     # Analyze for scams/phishing
     analyzer = ScamAnalyzer(api_key, model)
@@ -426,7 +440,7 @@ def analyze(url: str, api_key: str, model: str, output: str, verbose: bool, json
         # Output results
         if output == 'json':
             result = {
-                'url': url,
+                'url': url_or_text if not text else 'direct_text_input',
                 'post_data': post_data,
                 'analysis': analysis
             }

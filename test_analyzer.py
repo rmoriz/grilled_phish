@@ -68,17 +68,20 @@ def show_usage_examples():
     print("="*60)
     
     examples = [
-        "# Basic analysis",
+        "# Basic URL analysis",
         "python mastodon_analyzer.py 'https://mastodon.social/@user/123456789'",
         "",
-        "# With specific model",
-        "python mastodon_analyzer.py 'https://fosstodon.org/@dev/123' --model 'anthropic/claude-3-sonnet'",
+        "# Direct text analysis",
+        "python mastodon_analyzer.py 'URGENT! Click here to verify your account!' --text",
         "",
-        "# JSON output",
+        "# Simple JSON output",
+        "python mastodon_analyzer.py 'Check out this crypto opportunity!' --text --json",
+        "",
+        "# Full JSON output",
         "python mastodon_analyzer.py 'https://mas.to/@user/123' --output json",
         "",
-        "# Verbose mode",
-        "python mastodon_analyzer.py 'https://example.social/@user/123' --verbose",
+        "# Verbose mode with text",
+        "python mastodon_analyzer.py 'Send me your password to confirm!' --text --verbose",
         "",
         "# With API key from command line",
         "python mastodon_analyzer.py 'https://example.social/@user/123' --api-key 'your-key'"
