@@ -388,7 +388,7 @@ Respond in JSON format with:
 @click.option('--json', 'json_only', is_flag=True, help='Output only JSON with verdict, percentage, and reason')
 @click.option('--text', '-t', is_flag=True, help='Treat input as text content instead of URL')
 @click.option('--stdin', is_flag=True, help='Read text content from stdin')
-@click.option('--max-tokens', type=int, default=1000, help='Maximum tokens for AI response (default: 1000)')
+@click.option('--max-tokens', type=int, default=1000, help='Maximum tokens for AI response output (default: 1000)')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool, stdin: bool, max_tokens: int):
     """
