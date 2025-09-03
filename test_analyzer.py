@@ -89,6 +89,12 @@ def show_usage_examples():
         "# From file via stdin",
         "cat suspicious_message.txt | python mastodon_analyzer.py --stdin",
         "",
+        "# Control response length",
+        "python mastodon_analyzer.py 'Suspicious text' --text --max-tokens 200",
+        "",
+        "# Quick analysis with short response",
+        "echo 'Free money!' | python mastodon_analyzer.py --stdin --json --max-tokens 100",
+        "",
         "# With API key from command line",
         "python mastodon_analyzer.py 'https://example.social/@user/123' --api-key 'your-key'"
     ]

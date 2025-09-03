@@ -96,6 +96,12 @@ python mastodon_analyzer.py "URGENT! Send me your password to verify account!" -
 
 # Read from stdin
 echo "Free Bitcoin! Click now!" | python mastodon_analyzer.py --stdin --json
+
+# Control response length with token limit
+python mastodon_analyzer.py "https://example.social/@user/123" --max-tokens 500
+
+# Short analysis for quick checks
+python mastodon_analyzer.py "Suspicious text here" --text --json --max-tokens 200
 ```
 
 ## Configuration
@@ -104,6 +110,15 @@ echo "Free Bitcoin! Click now!" | python mastodon_analyzer.py --stdin --json
 
 - `OPENROUTER_API_KEY`: Your OpenRouter API key (required)
 - `OPENROUTER_MODEL`: AI model to use for analysis (optional, default: `openai/gpt-oss-20b:free`)
+
+### Command Line Options
+
+- `--max-tokens`: Maximum tokens for AI response (default: 1000 for detailed analysis, 500 for JSON-only)
+- `--text/-t`: Treat input as text content instead of URL
+- `--stdin`: Read text content from stdin
+- `--json`: Output only JSON with verdict, percentage, and reason
+- `--output/-o`: Output format (text or json)
+- `--verbose/-v`: Verbose output for debugging
 
 ### Available AI Models
 

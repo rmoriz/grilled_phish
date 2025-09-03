@@ -170,7 +170,7 @@ class ScamAnalyzer:
         )
         self.model = model
     
-    def analyze_post(self, post_data: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_post(self, post_data: Dict[str, Any], max_tokens: int = 1000) -> Dict[str, Any]:
         """
         Analyze a post for scam/phishing indicators.
         
@@ -208,7 +208,7 @@ class ScamAnalyzer:
                     }
                 ],
                 temperature=0.1,
-                max_tokens=1000
+                max_tokens=max_tokens
             )
             
             result = response.choices[0].message.content
@@ -222,7 +222,7 @@ class ScamAnalyzer:
                 'explanation': 'Could not complete analysis due to API error'
             }
     
-    def analyze_post_json_only(self, post_data: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_post_json_only(self, post_data: Dict[str, Any], max_tokens: int = 500) -> Dict[str, Any]:
         """
         Analyze a post for scam/phishing indicators with JSON-only output.
         
@@ -259,7 +259,7 @@ class ScamAnalyzer:
                     }
                 ],
                 temperature=0.1,
-                max_tokens=500
+                max_tokens=max_tokens
             )
             
             result = response.choices[0].message.content
@@ -388,8 +388,9 @@ Respond in JSON format with:
 @click.option('--json', 'json_only', is_flag=True, help='Output only JSON with verdict, percentage, and reason')
 @click.option('--text', '-t', is_flag=True, help='Treat input as text content instead of URL')
 @click.option('--stdin', is_flag=True, help='Read text content from stdin')
+@click.option('--max-tokens', type=int, default=1000, help='Maximum tokens for AI response (default: 1000)')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
-def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool, stdin: bool):
+def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool, stdin: bool, max_tokens: int):
     """
     Analyze a Mastodon/Fediverse post for scam or phishing content.
     
@@ -462,10 +463,10 @@ def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bo
     
     if json_only:
         # Use simplified JSON-only analysis
-        analysis = analyzer.analyze_post_json_only(post_data)
+        analysis = analyzer.analyze_post_json_only(post_data, max_tokens)
         click.echo(json.dumps(analysis, indent=2))
     else:
-        analysis = analyzer.analyze_post(post_data)
+        analysis = analyzer.analyze_post(post_data, max_tokens)
         
         # Output results
         if output == 'json':
