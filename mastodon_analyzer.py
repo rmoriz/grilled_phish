@@ -163,7 +163,7 @@ class MastodonPostExtractor:
 class ScamAnalyzer:
     """Analyzes posts for scam/phishing content using OpenRouter API."""
     
-    def __init__(self, api_key: str, model: str = "anthropic/claude-3-haiku"):
+    def __init__(self, api_key: str, model: str = "openai/gpt-oss-20b:free"):
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key
@@ -288,7 +288,7 @@ Respond in JSON format with:
 @click.command()
 @click.argument('url')
 @click.option('--api-key', envvar='OPENROUTER_API_KEY', help='OpenRouter API key')
-@click.option('--model', envvar='OPENROUTER_MODEL', default='anthropic/claude-3-haiku', help='AI model to use for analysis')
+@click.option('--model', envvar='OPENROUTER_MODEL', default='openai/gpt-oss-20b:free', help='AI model to use for analysis')
 @click.option('--output', '-o', type=click.Choice(['text', 'json']), default='text', help='Output format')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 def analyze(url: str, api_key: str, model: str, output: str, verbose: bool):

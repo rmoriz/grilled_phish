@@ -57,12 +57,13 @@ python mastodon_analyzer.py "https://example.social/@user/123"
 ### Environment Variables
 
 - `OPENROUTER_API_KEY`: Your OpenRouter API key (required)
-- `OPENROUTER_MODEL`: AI model to use for analysis (optional, default: `anthropic/claude-3-haiku`)
+- `OPENROUTER_MODEL`: AI model to use for analysis (optional, default: `openai/gpt-oss-20b:free`)
 
 ### Available AI Models
 
 The tool supports various AI models via OpenRouter:
-- `anthropic/claude-3-haiku` (default, fast and cost-effective)
+- `openai/gpt-oss-20b:free` ✅ **(default, free to use)**
+- `anthropic/claude-3-haiku` (fast and cost-effective)
 - `anthropic/claude-3-sonnet` (more thorough analysis)
 - `openai/gpt-4` (OpenAI's GPT-4)
 - `openai/gpt-3.5-turbo` (faster, less expensive)
