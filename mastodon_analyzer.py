@@ -222,6 +222,101 @@ class ScamAnalyzer:
                 'explanation': 'Could not complete analysis due to API error'
             }
     
+    def analyze_post_json_only(self, post_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analyze a post for scam/phishing indicators with JSON-only output.
+        
+        Args:
+            post_data: Dictionary containing post information
+            
+        Returns:
+            Simple JSON with verdict, percentage, and reason
+        """
+        content = post_data.get('content', '')
+        author = post_data.get('author', '')
+        instance = post_data.get('instance', '')
+        
+        if not content:
+            return {
+                'verdict': 'error',
+                'percentage': 0,
+                'reason': 'No content to analyze'
+            }
+        
+        prompt = self._create_json_only_prompt(content, author, instance)
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a cybersecurity expert. Respond only with valid JSON containing verdict, percentage, and reason fields."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.1,
+                max_tokens=500
+            )
+            
+            result = response.choices[0].message.content
+            return self._parse_json_only_result(result)
+            
+        except Exception as e:
+            return {
+                'verdict': 'error',
+                'percentage': 0,
+                'reason': f'Analysis failed: {str(e)}'
+            }
+    
+    def _create_json_only_prompt(self, content: str, author: str, instance: str) -> str:
+        """Create a simplified analysis prompt for JSON-only output."""
+        return f"""
+Analyze this social media post for scam/phishing content:
+
+POST: {content}
+AUTHOR: {author}
+INSTANCE: {instance}
+
+Respond with ONLY valid JSON in this exact format:
+{{
+    "verdict": "legitimate|suspicious|scam|phishing",
+    "percentage": number_0_to_100,
+    "reason": "brief explanation"
+}}
+
+Consider: urgency tactics, personal info requests, suspicious links, too-good-to-be-true offers, impersonation, poor grammar, crypto schemes, fake giveaways.
+"""
+    
+    def _parse_json_only_result(self, result: str) -> Dict[str, Any]:
+        """Parse the JSON-only analysis result."""
+        try:
+            # Try to extract JSON from the response
+            json_match = re.search(r'\{.*\}', result, re.DOTALL)
+            if json_match:
+                parsed = json.loads(json_match.group())
+                # Ensure required fields exist
+                return {
+                    'verdict': parsed.get('verdict', 'error'),
+                    'percentage': int(parsed.get('percentage', 0)),
+                    'reason': parsed.get('reason', 'No reason provided')
+                }
+            else:
+                return {
+                    'verdict': 'error',
+                    'percentage': 0,
+                    'reason': 'Could not parse response'
+                }
+        except (json.JSONDecodeError, ValueError):
+            return {
+                'verdict': 'error',
+                'percentage': 0,
+                'reason': 'Invalid JSON response from AI'
+            }
+    
     def _create_analysis_prompt(self, content: str, author: str, instance: str) -> str:
         """Create the analysis prompt for the AI model."""
         return f"""
@@ -290,8 +385,9 @@ Respond in JSON format with:
 @click.option('--api-key', envvar='OPENROUTER_API_KEY', help='OpenRouter API key')
 @click.option('--model', envvar='OPENROUTER_MODEL', default='openai/gpt-oss-20b:free', help='AI model to use for analysis')
 @click.option('--output', '-o', type=click.Choice(['text', 'json']), default='text', help='Output format')
+@click.option('--json', 'json_only', is_flag=True, help='Output only JSON with verdict, percentage, and reason')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
-def analyze(url: str, api_key: str, model: str, output: str, verbose: bool):
+def analyze(url: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool):
     """
     Analyze a Mastodon/Fediverse post for scam or phishing content.
     
@@ -319,18 +415,24 @@ def analyze(url: str, api_key: str, model: str, output: str, verbose: bool):
     
     # Analyze for scams/phishing
     analyzer = ScamAnalyzer(api_key, model)
-    analysis = analyzer.analyze_post(post_data)
     
-    # Output results
-    if output == 'json':
-        result = {
-            'url': url,
-            'post_data': post_data,
-            'analysis': analysis
-        }
-        click.echo(json.dumps(result, indent=2))
+    if json_only:
+        # Use simplified JSON-only analysis
+        analysis = analyzer.analyze_post_json_only(post_data)
+        click.echo(json.dumps(analysis, indent=2))
     else:
-        _display_text_results(post_data, analysis)
+        analysis = analyzer.analyze_post(post_data)
+        
+        # Output results
+        if output == 'json':
+            result = {
+                'url': url,
+                'post_data': post_data,
+                'analysis': analysis
+            }
+            click.echo(json.dumps(result, indent=2))
+        else:
+            _display_text_results(post_data, analysis)
 
 
 def _display_text_results(post_data: Dict[str, Any], analysis: Dict[str, Any]):

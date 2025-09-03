@@ -41,6 +41,9 @@ python mastodon_analyzer.py "https://example.social/@user/123" --model "anthropi
 # JSON output for programmatic use
 python mastodon_analyzer.py "https://example.social/@user/123" --output json
 
+# Simple JSON output (verdict, percentage, reason only)
+python mastodon_analyzer.py "https://example.social/@user/123" --json
+
 # Verbose mode for debugging
 python mastodon_analyzer.py "https://example.social/@user/123" --verbose
 
@@ -61,12 +64,8 @@ python mastodon_analyzer.py "https://example.social/@user/123"
 
 ### Available AI Models
 
-The tool supports various AI models via OpenRouter:
+The tool uses the free OpenRouter model:
 - `openai/gpt-oss-20b:free` ✅ **(default, free to use)**
-- `anthropic/claude-3-haiku` (fast and cost-effective)
-- `anthropic/claude-3-sonnet` (more thorough analysis)
-- `openai/gpt-4` (OpenAI's GPT-4)
-- `openai/gpt-3.5-turbo` (faster, less expensive)
 
 ## Output Formats
 
@@ -98,6 +97,16 @@ Structured data format including:
     "red_flags": [],
     "recommendations": "advice_for_users"
   }
+}
+```
+
+### Simple JSON Output (--json)
+Minimal JSON format for quick integration:
+```json
+{
+  "verdict": "legitimate",
+  "percentage": 85,
+  "reason": "Post appears to be normal social media content with no suspicious indicators"
 }
 ```
 
