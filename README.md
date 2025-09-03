@@ -21,7 +21,7 @@ A Python CLI tool that analyzes Mastodon and other Fediverse posts for potential
 3. Set up your OpenRouter API key:
    ```bash
    cp .env.example .env
-   # Edit .env and add your OpenRouter API key
+   # Edit .env and add your OpenRouter API key and optionally set your preferred model
    ```
 
 ## Usage
@@ -46,6 +46,10 @@ python mastodon_analyzer.py "https://example.social/@user/123" --verbose
 
 # Use API key from command line
 python mastodon_analyzer.py "https://example.social/@user/123" --api-key "your-key-here"
+
+# Set model via environment variable
+export OPENROUTER_MODEL="anthropic/claude-3-sonnet"
+python mastodon_analyzer.py "https://example.social/@user/123"
 ```
 
 ## Configuration
@@ -53,6 +57,7 @@ python mastodon_analyzer.py "https://example.social/@user/123" --api-key "your-k
 ### Environment Variables
 
 - `OPENROUTER_API_KEY`: Your OpenRouter API key (required)
+- `OPENROUTER_MODEL`: AI model to use for analysis (optional, default: `anthropic/claude-3-haiku`)
 
 ### Available AI Models
 
