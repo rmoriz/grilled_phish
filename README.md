@@ -6,6 +6,7 @@ A Python CLI tool that analyzes Mastodon and other Fediverse posts for potential
 
 - 🔍 **Post Extraction**: Automatically extracts content from Mastodon/Fediverse URLs
 - 📝 **Direct Text Analysis**: Analyze any text content without needing a URL
+- 📥 **Stdin Support**: Read content from pipes, files, or clipboard for batch processing
 - 🤖 **AI Analysis**: Uses OpenRouter API with free AI model to analyze content
 - 🚨 **Scam Detection**: Identifies common scam patterns, phishing attempts, and fraud indicators
 - 📊 **Detailed Reports**: Provides confidence scores, explanations, and recommendations
@@ -39,6 +40,20 @@ Analyze any text content without needing a URL - perfect for content from other 
 
 ```bash
 python mastodon_analyzer.py "🚨 URGENT! Your account will be suspended! Click here: bit.ly/verify" --text
+```
+
+### Stdin Input
+Read content from stdin for pipeline processing or file analysis:
+
+```bash
+# From a file
+cat suspicious_message.txt | python mastodon_analyzer.py --stdin
+
+# From clipboard (macOS)
+pbpaste | python mastodon_analyzer.py --stdin --json
+
+# From echo
+echo "Click here to claim your prize!" | python mastodon_analyzer.py --stdin
 ```
 
 ### Basic Usage
@@ -78,6 +93,9 @@ python mastodon_analyzer.py "https://example.social/@user/123"
 
 # Analyze suspicious text content
 python mastodon_analyzer.py "URGENT! Send me your password to verify account!" --text --verbose
+
+# Read from stdin
+echo "Free Bitcoin! Click now!" | python mastodon_analyzer.py --stdin --json
 ```
 
 ## Configuration

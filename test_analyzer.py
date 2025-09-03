@@ -83,6 +83,12 @@ def show_usage_examples():
         "# Verbose mode with text",
         "python mastodon_analyzer.py 'Send me your password to confirm!' --text --verbose",
         "",
+        "# Read from stdin",
+        "echo 'Free Bitcoin! Click now!' | python mastodon_analyzer.py --stdin --json",
+        "",
+        "# From file via stdin",
+        "cat suspicious_message.txt | python mastodon_analyzer.py --stdin",
+        "",
         "# With API key from command line",
         "python mastodon_analyzer.py 'https://example.social/@user/123' --api-key 'your-key'"
     ]

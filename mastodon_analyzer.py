@@ -381,24 +381,50 @@ Respond in JSON format with:
 
 
 @click.command()
-@click.argument('url_or_text')
+@click.argument('url_or_text', required=False)
 @click.option('--api-key', envvar='OPENROUTER_API_KEY', help='OpenRouter API key')
 @click.option('--model', envvar='OPENROUTER_MODEL', default='openai/gpt-oss-20b:free', help='AI model to use for analysis')
 @click.option('--output', '-o', type=click.Choice(['text', 'json']), default='text', help='Output format')
 @click.option('--json', 'json_only', is_flag=True, help='Output only JSON with verdict, percentage, and reason')
 @click.option('--text', '-t', is_flag=True, help='Treat input as text content instead of URL')
+@click.option('--stdin', is_flag=True, help='Read text content from stdin')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
-def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool):
+def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bool, json_only: bool, text: bool, stdin: bool):
     """
     Analyze a Mastodon/Fediverse post for scam or phishing content.
     
-    URL_OR_TEXT: The URL of the post to analyze, or the text content if --text flag is used
+    URL_OR_TEXT: The URL of the post to analyze, or the text content if --text flag is used.
+                 Optional when using --stdin flag.
     """
     if not api_key:
         click.echo("Error: OpenRouter API key is required. Set OPENROUTER_API_KEY environment variable or use --api-key option.", err=True)
         sys.exit(1)
     
-    if text:
+    if stdin:
+        # Read from stdin
+        if verbose:
+            click.echo("Reading text content from stdin...")
+        
+        try:
+            content = sys.stdin.read().strip()
+            if not content:
+                click.echo("Error: No content received from stdin", err=True)
+                sys.exit(1)
+        except KeyboardInterrupt:
+            click.echo("\nOperation cancelled by user", err=True)
+            sys.exit(1)
+        
+        if verbose:
+            click.echo(f"Analyzing stdin content: {content[:100]}...")
+        
+        post_data = {
+            'url': 'stdin_input',
+            'content': content,
+            'author': 'unknown',
+            'timestamp': '',
+            'instance': 'stdin'
+        }
+    elif text:
         # Analyze text directly
         if verbose:
             click.echo(f"Analyzing text content: {url_or_text[:100]}...")
@@ -412,6 +438,10 @@ def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bo
         }
     else:
         # Extract post data from URL
+        if not url_or_text:
+            click.echo("Error: URL or text input is required when not using --stdin", err=True)
+            sys.exit(1)
+            
         if verbose:
             click.echo(f"Analyzing URL: {url_or_text}")
         
@@ -439,8 +469,9 @@ def analyze(url_or_text: str, api_key: str, model: str, output: str, verbose: bo
         
         # Output results
         if output == 'json':
+            source = 'stdin_input' if stdin else ('direct_text_input' if text else url_or_text)
             result = {
-                'url': url_or_text if not text else 'direct_text_input',
+                'url': source,
                 'post_data': post_data,
                 'analysis': analysis
             }
